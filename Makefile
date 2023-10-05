@@ -10,6 +10,9 @@ sum: sum.c
 sum-omp: sum.c
 	$(CC) $(CFLAGS) -fopenmp -D OMP -o $@ $<
 
+sum-cuda: sum.cu
+	nvcc -o $@ $<
+
 sum-pprof: sum.c
 	$(CC) $(CFLAGS) -fopenmp -lprofiler -o $@ $<
 	CPUPROFILE=main-serial.prof ./$@ $(SUM_SIZE)
@@ -20,9 +23,9 @@ sum-omp-pprof: sum.c
 	CPUPROFILE=main-omp.prof ./$@ $(SUM_SIZE)
 	pprof --web ./$@ main-omp.prof
 
-all: sum sum-omp
+all: sum sum-omp sum-cuda
 
 clean:
-	rm -f sum sum-omp sum-pprof sum-omp-pprof main-serial.prof main-omp.prof
+	rm -f sum sum-omp sum-cuda sum-pprof sum-omp-pprof main-serial.prof main-omp.prof
 
 .PHONY: clean
