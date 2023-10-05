@@ -1,5 +1,5 @@
 optimization,runtime,array_size,init_wall,init_cpu,ref_wall,ref_cpu
-0,1,536870912,467.406982,1787.210000,1134.430908,1170.961000
+0,1,,,,,
 0,2,,,,,
 0,3,,,,,
 1,1,,,,,
