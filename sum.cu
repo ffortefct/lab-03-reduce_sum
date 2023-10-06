@@ -43,37 +43,37 @@ int main(int argc, const char **argv) {
   else
     mem_size = (size = SIZE) * sizeof(int);
 
-  int *vect = (int *)malloc(mem_size);
-  assert(vect != NULL);
-  int *vect_cu;
+  int *vect_host = (int *)malloc(mem_size);
+  assert(vect_host != NULL);
+  int *vect_device;
 
-  assert(cudaMalloc(&vect_cu, mem_size) == cudaSuccess);
-  assert(cudaMemset(vect_cu, 0, mem_size) == cudaSuccess);
+  assert(cudaMalloc(&vect_device, mem_size) == cudaSuccess);
+  assert(cudaMemset(vect_device, 0, mem_size) == cudaSuccess);
 
-  printf("Initializing vector of size %ld\n", mem_size);
+  printf("Initializing vector of size %ld\n", size);
   double t1 = wtime();
   clock_t t2 = clock();
-  init_vector<<<(mem_size + THREADS - 1) / THREADS, THREADS>>>(vect_cu, size);
+  init_vector<<<(mem_size + THREADS - 1) / THREADS, THREADS>>>(vect_device, size);
   t2 = clock() - t2;
   t1 = wtime() - t1;
   double tf = ((double)t2 / (double)CLOCKS_PER_SEC) * 1000.0;
   printf("init time:   wall=%f ms    cpu=%f ms\n", t1, tf);
 
-  assert(cudaMemcpy(vect, vect_cu, mem_size, cudaMemcpyDeviceToHost) ==
+  assert(cudaMemcpy(vect_host, vect_device, mem_size, cudaMemcpyDeviceToHost) ==
          cudaSuccess);
-  assert(cudaFree(vect_cu) == cudaSuccess);
+  assert(cudaFree(vect_device) == cudaSuccess);
 
   printf("\nRunning reduction\n");
   t1 = wtime();
   t2 = clock();
-  reduce_sum(vect, size);
+  reduce_sum(vect_host, size);
   t2 = clock() - t2;
   t1 = wtime() - t1;
   tf = ((double)t2 / (double)CLOCKS_PER_SEC) * 1000.0;
   printf(" ref time:   wall=%f ms    cpu=%f ms\n", t1, tf);
 
-  if (vect[0] == mem_size / 2)
-    printf("\n   OK sum: %i\n", vect[0]);
+  if (vect_host[0] == size / 2)
+    printf("\n   OK sum: %i\n", vect_host[0]);
   else
-    printf("ERROR sum: expected %li, counter %i\n", mem_size / 2, vect[0]);
+    printf("ERROR sum: expected %li, counter %i\n", size / 2, vect_host[0]);
 }
