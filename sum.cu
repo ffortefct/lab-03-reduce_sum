@@ -6,7 +6,7 @@
 #include <time.h>
 #include <unistd.h>
 
-#define THREADS 1024
+#define THREADS 512
 
 #define SIZE 1024 * 1024L
 
